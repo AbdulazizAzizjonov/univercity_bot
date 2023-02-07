@@ -1,0 +1,5 @@
+package com.company.univercity_bot.enums;
+
+public enum MessageType {
+    MESSAGE, VIDEO, PHOTO, DOCUMENT, BIZ_BILAN_BOGLANISH, KUNDUZGI,KECHGI, MAGISTRATURA, BIU_OLIYGOHI, LITSENZIYA, SIRTQI
+}
