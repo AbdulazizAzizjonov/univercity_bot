@@ -21,7 +21,13 @@ public class EducationDirectory {
     private String nameUZ;
 
     @Column
+    private String infoUZ;
+
+    @Column
     private String nameRU;
+
+    @Column
+    private String infoRU;
 
     @Column(unique = true)
     private String directoryId;

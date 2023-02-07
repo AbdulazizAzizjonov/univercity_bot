@@ -21,6 +21,8 @@ public interface EducationDirectoryRepository extends JpaRepository<EducationDir
 
     EducationDirectory findByNameUZ (String nameUz);
 
+    EducationDirectory findByInfoUZ (String infoUz);
+
     EducationDirectory findByNameUZAndVisibleTrue (String nameUz);
 
     EducationDirectory findByDirectoryIdAndVisibleTrue (String directoryId);

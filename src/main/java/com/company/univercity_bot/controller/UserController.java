@@ -21,9 +21,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.*;
 
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 
 @Component
@@ -252,6 +254,10 @@ public class UserController {
 
                     EducationDirectory educationDirectory1 = educationDirectoryRepository.findByNameUZ(educationDirectory.getNameUZ());
 
+                    sendMessage.setText(educationDirectoryName.getInfoUZ());
+                    sendMessage.setChatId(chatId);
+                    univercityBot.sendMsg(sendMessage);
+
                     student.setEducationDirectory(educationDirectory1);
 
                     CompanantContainer.studentStepMap.put(chatId, UserStatus.TALIM_TURINI_KIRITIDI);
@@ -273,7 +279,7 @@ public class UserController {
                     student.setEducationType(text);
                     CompanantContainer.studentStepMap.put(chatId, UserStatus.HUDUDNI_TANLADI);
 
-                    sendMessage.setText("Hududni tanlang.");
+                    sendMessage.setText("Imtihon bo'ladigan hududni tanlang.");
                     sendMessage.setReplyMarkup(KeyboardButtonUtil.HUDUDUZ());
                     sendMessage.setChatId(chatId);
                     univercityBot.sendMsg(sendMessage);
@@ -295,7 +301,9 @@ public class UserController {
                     sendMessage.setChatId(chatId);
                     univercityBot.sendMsg(sendMessage);
                 }
+
             } else if (CompanantContainer.studentStepMap.get(chatId).equals(UserStatus.JINSI_TANLADI)) {
+
                 if (text.equals("❌ Bekor qilish")) {
                     sendMessage.setText("Ushbu Bot BUXORO INNOVATSIYALAR UNIVERSITETI  Oliygohi bilan  tanishtirish va abituriyentlarni ro'yxatga olish uchun yaratilgan!");
                     sendMessage.setReplyMarkup(KeyboardButtonUtil.startUserUz());
@@ -313,6 +321,7 @@ public class UserController {
                     sendMessage.setChatId(chatId);
                     univercityBot.sendMsg(sendMessage);
                 }
+
             } else if (CompanantContainer.studentStepMap.get(chatId).equals(UserStatus.ISMNI_KIRITDI)) {
                 if (text.equals("❌ Bekor qilish")) {
                     sendMessage.setText("Ushbu Bot BUXORO INNOVATSIYALAR UNIVERSITETI  Oliygohi bilan  tanishtirish va abituriyentlarni ro'yxatga olish uchun yaratilgan!");
@@ -321,33 +330,57 @@ public class UserController {
                     univercityBot.sendMsg(sendMessage);
                     CompanantContainer.studentStepMap.remove(chatId);
 
+                } else if (text.length() <= 3) {
+                    sendMessage.setText("Noto'g'ri ma'lumot kiritildi  ❗️\nIltimos tekshirib qaytadan kiritb ko`ring.");
+                    sendMessage.setChatId(chatId);
+                    univercityBot.sendMsg(sendMessage);
+
                 } else {
                     student.setName(text);
                     CompanantContainer.studentStepMap.put(chatId, UserStatus.TUGILGAN_KUNINI_KIRITIDI);
-
                     sendMessage.setText("\uD83D\uDCC5 Tug'ilgan kuningizni kiriting (01.01.2000)");
                     sendMessage.setReplyMarkup(KeyboardButtonUtil.CancelAndBackUz());
                     sendMessage.setChatId(chatId);
                     univercityBot.sendMsg(sendMessage);
                 }
+
             } else if (CompanantContainer.studentStepMap.get(chatId).equals(UserStatus.TUGILGAN_KUNINI_KIRITIDI)) {
-                if (text.equals("❌ Bekor qilish")) {
-                    sendMessage.setText("Ushbu Bot BUXORO INNOVATSIYALAR UNIVERSITETI  Oliygohi bilan  tanishtirish va abituriyentlarni ro'yxatga olish uchun yaratilgan!");
-                    sendMessage.setReplyMarkup(KeyboardButtonUtil.startUserUz());
-                    sendMessage.setChatId(chatId);
-                    univercityBot.sendMsg(sendMessage);
-                    CompanantContainer.studentStepMap.remove(chatId);
 
-                } else {
-                    student.setBirthday(text);
-                    CompanantContainer.studentStepMap.put(chatId, UserStatus.PASSPORT_RAQAMINI_KIRITIDI);
+                try {
+                    String[] split = text.split("\\.");
 
-                    sendMessage.setText("Pasport seria va raqamingizni kiriting (AA XXXXXXX)");
-                    sendMessage.setReplyMarkup(KeyboardButtonUtil.CancelAndBackUz());
-                    sendMessage.setChatId(chatId);
-                    univercityBot.sendMsg(sendMessage);
+                    int day = Integer.parseInt(split[0]);
+                    int month = Integer.parseInt(split[1]);
+                    int year = Integer.parseInt(split[2]);
+
+                    LocalDate localDate = LocalDate.of(year, month, day);
+
+                    if (text.equals("❌ Bekor qilish")) {
+                        sendMessage.setText("Ushbu Bot BUXORO INNOVATSIYALAR UNIVERSITETI  Oliygohi bilan  tanishtirish va abituriyentlarni ro'yxatga olish uchun yaratilgan!");
+                        sendMessage.setReplyMarkup(KeyboardButtonUtil.startUserUz());
+                        sendMessage.setChatId(chatId);
+                        univercityBot.sendMsg(sendMessage);
+                        CompanantContainer.studentStepMap.remove(chatId);
+
+                    } else if (localDate.isBefore(LocalDate.now())) {
+                        student.setBirthday(text);
+                        CompanantContainer.studentStepMap.put(chatId, UserStatus.PASSPORT_RAQAMINI_KIRITIDI);
+
+                        sendMessage.setText("Pasport seria va raqamingizni kiriting (AA XXXXXXX)");
+                        sendMessage.setReplyMarkup(KeyboardButtonUtil.CancelAndBackUz());
+                        sendMessage.setChatId(chatId);
+                        univercityBot.sendMsg(sendMessage);
+
+                    } else {
+                        sendMessage.setText("Hozirgi sanadan oldingi sana kiritilishi kerak ❗");
+                    }
+
+                } catch (Exception e) {
+                    sendMessage.setText("Sana kiritilishida xatolik ❗\nQaytadan urinib ko`ring.");
                 }
-            } else if (CompanantContainer.studentStepMap.get(chatId).equals(UserStatus.PASSPORT_RAQAMINI_KIRITIDI)) {
+
+            }
+            if (CompanantContainer.studentStepMap.get(chatId).equals(UserStatus.PASSPORT_RAQAMINI_KIRITIDI)) {
                 if (text.equals("❌ Bekor qilish")) {
                     sendMessage.setText("Ushbu Bot BUXORO INNOVATSIYALAR UNIVERSITETI  Oliygohi bilan  tanishtirish va abituriyentlarni ro'yxatga olish uchun yaratilgan!");
                     sendMessage.setReplyMarkup(KeyboardButtonUtil.startUserUz());
@@ -355,7 +388,7 @@ public class UserController {
                     univercityBot.sendMsg(sendMessage);
                     CompanantContainer.studentStepMap.remove(chatId);
 
-                } else {
+                } else if (Pattern.matches("[A-Z]{2}[0-9]{7}", text)) {
                     student.setPassportNumber(text);
                     CompanantContainer.studentStepMap.put(chatId, UserStatus.PASSPORT_BERILGAN_SANANI_KIRITDI);
 
@@ -364,24 +397,47 @@ public class UserController {
                     sendMessage.setReplyMarkup(KeyboardButtonUtil.CancelAndBackUz());
                     sendMessage.setChatId(chatId);
                     univercityBot.sendMsg(sendMessage);
-                }
-            } else if (CompanantContainer.studentStepMap.get(chatId).equals(UserStatus.PASSPORT_BERILGAN_SANANI_KIRITDI)) {
-                if (text.equals("❌ Bekor qilish")) {
-                    sendMessage.setText("Ushbu Bot BUXORO INNOVATSIYALAR UNIVERSITETI  Oliygohi bilan  tanishtirish va abituriyentlarni ro'yxatga olish uchun yaratilgan!");
-                    sendMessage.setReplyMarkup(KeyboardButtonUtil.startUserUz());
-                    sendMessage.setChatId(chatId);
-                    univercityBot.sendMsg(sendMessage);
-                    CompanantContainer.studentStepMap.remove(chatId);
-
                 } else {
-                    student.setTakePassportDay(text);
-                    CompanantContainer.studentStepMap.put(chatId, UserStatus.TELEFON_RAQAMINI_KIRITIDI);
-
-                    sendMessage.setText("📞 Telefon raqamini kiriting: (+998XXXXXXXXX)");
-                    sendMessage.setReplyMarkup(KeyboardButtonUtil.ContactUz());
+                    sendMessage.setText("Noto'g'ri ma'lumot kiritildi  ❗️\nIltimos tekshirib qaytadan kiritb ko`ring.");
                     sendMessage.setChatId(chatId);
                     univercityBot.sendMsg(sendMessage);
                 }
+
+            } else if (CompanantContainer.studentStepMap.get(chatId).equals(UserStatus.PASSPORT_BERILGAN_SANANI_KIRITDI)) {
+
+                try {
+                    String[] split = text.split("\\.");
+
+                    int day = Integer.parseInt(split[0]);
+                    int month = Integer.parseInt(split[1]);
+                    int year = Integer.parseInt(split[2]);
+
+                    LocalDate localDate = LocalDate.of(year, month, day);
+
+
+                    if (text.equals("❌ Bekor qilish")) {
+                        sendMessage.setText("Ushbu Bot BUXORO INNOVATSIYALAR UNIVERSITETI  Oliygohi bilan  tanishtirish va abituriyentlarni ro'yxatga olish uchun yaratilgan!");
+                        sendMessage.setReplyMarkup(KeyboardButtonUtil.startUserUz());
+                        sendMessage.setChatId(chatId);
+                        univercityBot.sendMsg(sendMessage);
+                        CompanantContainer.studentStepMap.remove(chatId);
+
+                    } else if (localDate.isBefore(LocalDate.now())) {
+
+                        student.setTakePassportDay(text);
+                        CompanantContainer.studentStepMap.put(chatId, UserStatus.TELEFON_RAQAMINI_KIRITIDI);
+                        sendMessage.setText("📞 Telefon raqamini kiriting: (+998XXXXXXXXX)");
+                        sendMessage.setReplyMarkup(KeyboardButtonUtil.ContactUz());
+                        sendMessage.setChatId(chatId);
+                        univercityBot.sendMsg(sendMessage);
+
+                    } else {
+                        sendMessage.setText("Hozirgi sanadan oldingi sana kiritilishi kerak ❗");
+                    }
+                } catch (Exception e) {
+                    sendMessage.setText("Sana kiritilishida xatolik ❗\nQaytadan urinib ko`ring.");
+                }
+
             } else if (CompanantContainer.studentStepMap.get(chatId).equals(UserStatus.TELEFON_RAQAMINI_KIRITIDI)) {
                 if (text.equals("❌ Bekor qilish")) {
                     sendMessage.setText("Ushbu Bot BUXORO INNOVATSIYALAR UNIVERSITETI  Oliygohi bilan  tanishtirish va abituriyentlarni ro'yxatga olish uchun yaratilgan!");
@@ -390,17 +446,22 @@ public class UserController {
                     univercityBot.sendMsg(sendMessage);
                     CompanantContainer.studentStepMap.remove(chatId);
 
-                } else {
+                } else if (Pattern.matches("[+]998[0-9][0-9]{8}", text)) {
+
                     student.setPhone(text);
-//                    student.setPhone(text); TODO tekshirish
                     CompanantContainer.studentStepMap.put(chatId, UserStatus.OTA_ONA_TELEFON);
 
-                    sendMessage.setText("Ota/ona telefon raqamini kiriting.");
+                    sendMessage.setText("Qo'shimcha telefon raqamini kiriting (Oila a'zo yoki yaqin qarindosh)");
                     sendMessage.setReplyMarkup(KeyboardButtonUtil.CancelAndBackUz());
+                    sendMessage.setChatId(chatId);
+                    univercityBot.sendMsg(sendMessage);
+                } else {
+                    sendMessage.setText("Noto'g'ri ma'lumot kiritildi  ❗️\nIltimos tekshirib qaytadan kiritb ko`ring.");
                     sendMessage.setChatId(chatId);
                     univercityBot.sendMsg(sendMessage);
                 }
             } else if (CompanantContainer.studentStepMap.get(chatId).equals(UserStatus.OTA_ONA_TELEFON)) {
+
                 if (text.equals("❌ Bekor qilish")) {
                     sendMessage.setText("Ushbu Bot BUXORO INNOVATSIYALAR UNIVERSITETI  Oliygohi bilan  tanishtirish va abituriyentlarni ro'yxatga olish uchun yaratilgan!");
                     sendMessage.setReplyMarkup(KeyboardButtonUtil.startUserUz());
@@ -408,15 +469,20 @@ public class UserController {
                     univercityBot.sendMsg(sendMessage);
                     CompanantContainer.studentStepMap.remove(chatId);
 
-                } else {
+                } else if (Pattern.matches("[+]998[0-9][0-9]{8}", text)) {
+
                     student.setFathPhone(text);
                     CompanantContainer.studentStepMap.put(chatId, UserStatus.YASHASH_MANZILI);
-
                     sendMessage.setText("Hozirda istiqomat qilayotgan yashash manzilingizni kirting.");
                     sendMessage.setReplyMarkup(KeyboardButtonUtil.CancelAndBackUz());
                     sendMessage.setChatId(chatId);
                     univercityBot.sendMsg(sendMessage);
+                } else {
+                    sendMessage.setText("Noto'g'ri ma'lumot kiritildi  ❗️\nIltimos tekshirib qaytadan kiritb ko`ring.");
+                    sendMessage.setChatId(chatId);
+                    univercityBot.sendMsg(sendMessage);
                 }
+
             } else if (CompanantContainer.studentStepMap.get(chatId).equals(UserStatus.YASHASH_MANZILI)) {
                 if (text.equals("❌ Bekor qilish")) {
                     sendMessage.setText("Ushbu Bot BUXORO INNOVATSIYALAR UNIVERSITETI  Oliygohi bilan  tanishtirish va abituriyentlarni ro'yxatga olish uchun yaratilgan!");
@@ -876,7 +942,7 @@ public class UserController {
             System.out.println(Long.valueOf(chatId));
             CompanantContainer.studentStepMap.put(chatId, UserStatus.TALIM_DARAJASINI_KIRITIDI);
             CompanantContainer.studentMap.put(
-                    chatId, new Student(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,chatId, null));
+                    chatId, new Student(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, chatId, null));
 
 
         } else if (text.equals("BIU Oliygohi haqida(ruscha)")) {

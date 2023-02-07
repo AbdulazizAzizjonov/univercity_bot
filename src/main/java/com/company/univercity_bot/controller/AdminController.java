@@ -702,13 +702,33 @@ public class AdminController {
                 educationDirectory.setNameUZ(text);
                 educationDirectoryMap.put(chatId, educationDirectory);
                 educationDirectoryStepMap.put(chatId, AdminStatus.ENTERED_BAKALAVR_NAME_RU);
-                sendMessage.setText("Bakalavr yo'nalishini ruscha variantini kiriting:");
+                sendMessage.setText("Bakalavr yo'nalish nomini ruscha variantini kiriting:");
                 sendMessage.setChatId(chatId);
                 univercityBot.sendMsg(sendMessage);
 
             } else if (educationDirectoryStepMap.get(chatId).equals(AdminStatus.ENTERED_BAKALAVR_NAME_RU)) {
                 educationDirectory.setNameRU(text);
                 educationDirectoryMap.put(chatId, educationDirectory);
+
+                educationDirectoryStepMap.put(chatId, AdminStatus.ENTERED_BAKALAVR_TARIF_UZ);
+                sendMessage.setText("Yo'nalishning o'zbekcha tarifini kiriting:");
+                sendMessage.setChatId(chatId);
+                univercityBot.sendMsg(sendMessage);
+
+
+            } else if (educationDirectoryStepMap.get(chatId).equals(AdminStatus.ENTERED_BAKALAVR_TARIF_UZ)) {
+                educationDirectory.setInfoUZ(text);
+                educationDirectoryMap.put(chatId, educationDirectory);
+
+                educationDirectoryStepMap.put(chatId, AdminStatus.ENTERED_BAKALAVR_TARIF_RU);
+                sendMessage.setText("Yo'nalishning ruscha tarifini kiriting:");
+                sendMessage.setChatId(chatId);
+                univercityBot.sendMsg(sendMessage);
+
+            } else if (educationDirectoryStepMap.get(chatId).equals(AdminStatus.ENTERED_BAKALAVR_TARIF_RU)) {
+                educationDirectory.setInfoRU(text);
+                educationDirectoryMap.put(chatId, educationDirectory);
+
                 educationDirectoryStepMap.put(chatId, AdminStatus.ENTERED_BAKALAVR_ID);
                 sendMessage.setText("Yo'nalishning ID raqamini kiriting:");
                 sendMessage.setChatId(chatId);
@@ -738,6 +758,22 @@ public class AdminController {
             } else if (educationDirectoryStepMap.get(chatId).equals(AdminStatus.ENTERED_MAGISTRATURA_NAME_RU)) {
                 educationDirectory.setNameRU(text);
                 educationDirectoryMap.put(chatId, educationDirectory);
+                educationDirectoryStepMap.put(chatId, AdminStatus.ENTERED_MAGISTRATURA_TARIF_UZ);
+                sendMessage.setText("Yo'nalishning o'zbekcha ta'rifini kiriting:");
+                sendMessage.setChatId(chatId);
+                univercityBot.sendMsg(sendMessage);
+
+            } else if (educationDirectoryStepMap.get(chatId).equals(AdminStatus.ENTERED_MAGISTRATURA_TARIF_UZ)) {
+                educationDirectory.setInfoUZ(text);
+                educationDirectoryMap.put(chatId, educationDirectory);
+                educationDirectoryStepMap.put(chatId, AdminStatus.ENTERED_MAGISTRATURA_TARIF_RU);
+                sendMessage.setText("Yo'nalishning ruscha ta'rifini kiriting:");
+                sendMessage.setChatId(chatId);
+                univercityBot.sendMsg(sendMessage);
+
+            } else if (educationDirectoryStepMap.get(chatId).equals(AdminStatus.ENTERED_MAGISTRATURA_TARIF_RU)) {
+                educationDirectory.setInfoRU(text);
+                educationDirectoryMap.put(chatId, educationDirectory);
                 educationDirectoryStepMap.put(chatId, AdminStatus.ENTERED_MAGISTRATURA_ID);
                 sendMessage.setText("Yo'nalishning ID raqamini kiriting:");
                 sendMessage.setChatId(chatId);
@@ -745,7 +781,6 @@ public class AdminController {
 
             } else if (educationDirectoryStepMap.get(chatId).equals(AdminStatus.ENTERED_MAGISTRATURA_ID)) {
                 educationDirectory.setDirectoryId(text);
-                educationDirectoryMap.put(chatId, educationDirectory);
                 educationDirectoryService.saveDirectory(educationDirectory);
                 sendMessage.setText("Magistratura" + " " + educationDirectory.getNameUZ() + " " + "yo'nalishi muvaffaqiyatli saqlandi!");
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.educationMagistraturaDirectoryMarkup(getMagistraturaDirectoryList()));
@@ -830,28 +865,6 @@ public class AdminController {
                 univercityBot.sendMsg(sendMessage);
 
             }
-//            else if (shartnomaInfoStepMap.get(chatId).equals(AdminStatus.ENTERED_SHARTNOMA_UZ)) {
-//                shartnomaInfo.setShartnomaUz(String.valueOf(document));
-//                System.out.println(document);
-//                shartnomaInfoStepMap.put(chatId, AdminStatus.ENTERED_SHARTNOMA_RU);
-//
-//                sendMessage.setText("Shartnomani o'zbekcha variantini jo'nating");
-//                sendMessage.setChatId(chatId);
-//                univercityBot.sendMsg(sendMessage);
-//
-//            } else if (shartnomaInfoStepMap.get(chatId).equals(AdminStatus.ENTERED_SHARTNOMA_RU)) {
-//                shartnomaInfo.setShartnomaRu(String.valueOf(document));
-//                shartnomaInfoMap.put(chatId, shartnomaInfo);
-//                shartnomaInfoService.save(shartnomaInfo);
-//                sendMessage.setText("Shartnoma muvaffaqiyatli saqlandi!");
-//                sendMessage.setChatId(chatId);
-//                sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.SHARTNOMACRUD());
-//                univercityBot.sendMsg(sendMessage);
-//
-//                shartnomaInfoStepMap.remove(chatId);
-//                shartnomaInfoMap.remove(chatId);
-//            }
-
         } else if (text.equals("Yo'nalish CRUD")) {
             AdminStepMap.put(chatId, AdminStatus.ENTERED_YONALISH_CRUD);
             sendMessage.setText("Quyidagilardan birini tanlang!");
@@ -871,14 +884,14 @@ public class AdminController {
         } else if (text.equals("Bakalavrga Yo'nalish Qo'shish")) {
 
             AdminStepMap.put(chatId, AdminStatus.ENTERED_BAKALAVR_YONALISH);
-            sendMessage.setText("Bakalavr yo'nalishini o'zbekcha variantini kiriting:");
+            sendMessage.setText("Bakalavr yo'nalish nomini o'zbekcha variantini kiriting:");
             sendMessage.setChatId(chatId);
 
             EducationDegree education = educationDegreeService.getNameUz("Bakalavr");
 
 
             educationDirectoryStepMap.put(chatId, AdminStatus.ENTERED_BAKALAVR_NAME_UZ);
-            EducationDirectory edu = new EducationDirectory(null, null, null, null, true, education);
+            EducationDirectory edu = new EducationDirectory(null, null, null, null, null, null, true, education);
             educationDirectoryMap.put(chatId, edu
             );
             univercityBot.sendMsg(sendMessage);
@@ -895,7 +908,7 @@ public class AdminController {
 
             educationDirectoryStepMap.put(chatId, AdminStatus.DELETED_BAKALAVR_NAME_UZ);
             educationDirectoryMap.put(chatId,
-                    new EducationDirectory(null, null, null, null, true, educationDegree));
+                    new EducationDirectory(null, null, null, null, null, null, true, educationDegree));
 
 
             univercityBot.sendMsg(sendMessage);
@@ -911,7 +924,7 @@ public class AdminController {
 
             educationDirectoryStepMap.put(chatId, AdminStatus.ENTERED_MAGISTRATURA_NAME_UZ);
             educationDirectoryMap.put(chatId,
-                    new EducationDirectory(null, null, null, null, true, educationDegree));
+                    new EducationDirectory(null, null, null, null, null, null, true, educationDegree));
             univercityBot.sendMsg(sendMessage);
 
         } else if (text.equals("Magistratura Yo'nalishini O'chirish")) {
@@ -928,7 +941,7 @@ public class AdminController {
 
             educationDirectoryStepMap.put(chatId, AdminStatus.DELETED_MAGISTRATURA_NAME_UZ);
             educationDirectoryMap.put(chatId,
-                    new EducationDirectory(null, null, null, null, true, educationDegree));
+                    new EducationDirectory(null, null, null, null, null, null, true, educationDegree));
 
             univercityBot.sendMsg(sendMessage);
 

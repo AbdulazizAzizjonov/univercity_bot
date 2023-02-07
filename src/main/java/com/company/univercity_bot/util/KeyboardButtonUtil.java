@@ -70,8 +70,8 @@ public class KeyboardButtonUtil {
 
 
     public static ReplyKeyboard GENDERUZ() {
-        KeyboardButton kunduzgi = new KeyboardButton("Erkak");
-        KeyboardButton kechgi = new KeyboardButton("Ayol");
+        KeyboardButton kunduzgi = new KeyboardButton("\uD83E\uDDD4 Erkak");
+        KeyboardButton kechgi = new KeyboardButton("\uD83D\uDC69\u200D\uD83E\uDDB0 Ayol");
         KeyboardButton cancel = new KeyboardButton("❌ Bekor qilish");
 
 
