@@ -34,6 +34,20 @@ public class KeyboardButtonUtil {
 
     }
 
+    public static ReplyKeyboard ExcelType() {
+        KeyboardButton kunduzgi = new KeyboardButton("Bakalavr Excel");
+        KeyboardButton kechgi = new KeyboardButton("Magistratura Excel");
+        KeyboardButton plus = new KeyboardButton("⬅ Ortga qaytish");
+
+
+        KeyboardRow row1 = getRow(kunduzgi, kechgi);
+        KeyboardRow row3 = getRow(plus);
+
+        List<KeyboardRow> rowList = getRowList(row1, row3);
+        return getMarkup(rowList);
+
+    }
+
 
     public static ReplyKeyboard EduType() {
         KeyboardButton kunduzgi = new KeyboardButton("Kunduzgi");

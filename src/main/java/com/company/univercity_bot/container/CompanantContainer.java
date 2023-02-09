@@ -31,4 +31,6 @@ public class CompanantContainer {
     public static Map<String, OrderShartnoma> orderShartnomaMap = new HashMap<>();
     public static Map<String, AdminStatus> orderShartnomaStepMap = new HashMap<>();
 
+    public static final String PATH = "src/main/resources/";
+
 }

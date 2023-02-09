@@ -15,5 +15,4 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
     @Query("SELECT s FROM Student s WHERE s.UserNumber=?1")
     Student findByUserNumber (String number);
 
-
 }

@@ -46,9 +46,9 @@ public class InlineKeyboardButtonUtil {
     public static InlineKeyboardMarkup SHARTNOMACRUD () {
 
         InlineKeyboardButton infoCreate = getButton("Shartnoma qo'shish", "shartnoma_create" );
-        InlineKeyboardButton infoUpdate = getButton("Ma'lumot tahrirlash", "info_update" );
-        InlineKeyboardButton infoDelete = getButton("Ma'lumotni o'chirish", "info_delete" );
-        InlineKeyboardButton back = getButton("⏪ Ortga qaytish", "back_from_BIUInfo" );
+        InlineKeyboardButton infoUpdate = getButton("Shartnoma o'chirish", "shartnoma_delete" );
+        InlineKeyboardButton infoDelete = getButton("Shartnomalarni ko'rish", "shartnoma_show" );
+        InlineKeyboardButton back = getButton("⏪ Ortga qaytish", "back_from_shartnomacrud" );
 
         List<InlineKeyboardButton> row = getRow(infoCreate, infoUpdate);
         List<InlineKeyboardButton> row1 = getRow(infoDelete);
@@ -356,7 +356,7 @@ public class InlineKeyboardButtonUtil {
 
 
         Instagram.setUrl("https://instagram.com/ubs.uz?igshid=YmMyMTA2M2Y=");
-        Telegram.setUrl("https://t.me/OxangBot");
+        Telegram.setUrl("https://t.me/buhoro_innovatsiyalar_u_bott");
         Manzil.setUrl("https://www.google.com/maps/place/TDTU/@41.3525193,69.1366983,12z/data=!4m18!1m12!4m11!1m3!2m2!1d69.2082811!2d41.353679!1m6!1m2!1s0x38ae8c3da3c6e5c3:0x9882f2a6b7329d1d!2s2+Universitet+Ko'chasi,+Tashkent!2m2!1d69.2067382!2d41.3525405!3m4!1s0x38ae8c3da3c6e5c3:0x9882f2a6b7329d1d!8m2!3d41.3525405!4d69.2067382");
         List<InlineKeyboardButton> row1 = getRow(Instagram, Telegram);
         List<InlineKeyboardButton> row3 = getRow(Manzil);
@@ -380,7 +380,7 @@ public class InlineKeyboardButtonUtil {
         Manzil.setText("Адрес \uD83D\uDCCD");
 
         Instagram.setUrl("https://instagram.com/ubs.uz?igshid=YmMyMTA2M2Y=");
-        Telegram.setUrl("https://t.me/OxangBot");
+        Telegram.setUrl("https://t.me/buhoro_innovatsiyalar_u_bott");
         Manzil.setUrl("https://www.google.com/maps/place/TDTU/@41.3525193,69.1366983,12z/data=!4m18!1m12!4m11!1m3!2m2!1d69.2082811!2d41.353679!1m6!1m2!1s0x38ae8c3da3c6e5c3:0x9882f2a6b7329d1d!2s2+Universitet+Ko'chasi,+Tashkent!2m2!1d69.2067382!2d41.3525405!3m4!1s0x38ae8c3da3c6e5c3:0x9882f2a6b7329d1d!8m2!3d41.3525405!4d69.2067382");
         List<InlineKeyboardButton> row1 = getRow(Instagram, Telegram);
         List<InlineKeyboardButton> row3 = getRow(Manzil);

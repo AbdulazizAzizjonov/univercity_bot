@@ -54,12 +54,15 @@ public class Student {
     private String fathPhone;
 
     @Column
+    private String passportImage;
+
+    @Column
     private String pImage;
 
     @Column
     private String image;
 
-    @Column(unique = true)
+    @Column()
     private String UserNumber;
 
     @ManyToOne()

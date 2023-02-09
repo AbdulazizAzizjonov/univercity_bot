@@ -15,13 +15,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 
 import static com.company.univercity_bot.container.CompanantContainer.*;
@@ -60,6 +63,9 @@ public class AdminController {
     @Autowired
     private final ShartnomaInfoService shartnomaInfoService;
 
+    @Autowired
+    private final FileController fileController;
+
     public void handleMessage(User user, Message message) {
         if (message.hasText()) {
             handleText(user, message);
@@ -67,6 +73,36 @@ public class AdminController {
             handlePhoto(user, message);
         } else if (message.hasDocument()) {
             hasDocument(user, message);
+        } else if (message.hasVideo()) {
+            handleVideo(user, message);
+        }
+    }
+
+    private void handleVideo(User user, Message message) {
+
+        String text = message.getText();
+
+
+        List<Video> photoSizeList = Collections.singletonList(message.getVideo());
+        String chatId = String.valueOf(message.getChatId());
+
+        if (biuUnivercityStepMap.containsKey(chatId)) {
+
+            if (biuUnivercityStepMap.get(chatId).equals(AdminStatus.ENTERED_LITSENZIYA)) {
+
+                BiuUnivercity biuUnivercity = biuUnivercityMap.get(chatId);
+
+                biuUnivercity.setMediaId(photoSizeList.get(0).getFileId());
+
+                biuUnivercityService.saveMesage(biuUnivercity);
+                SendMessage sendMessage1 = new SendMessage(
+                        chatId, "Video saqlandi!"
+                );
+                sendMessage1.setReplyMarkup(InlineKeyboardButtonUtil.BIU_Univercity());
+                univercityBot.sendMsg(sendMessage1);
+
+            }
+
         }
     }
 
@@ -106,6 +142,7 @@ public class AdminController {
 
                 shartnomaInfoStepMap.remove(chatId);
                 shartnomaInfoMap.remove(chatId);
+
             }
         }
     }
@@ -294,7 +331,7 @@ public class AdminController {
 
                 SendPhoto sendPhoto = new SendPhoto(chatId, new InputFile(biuUnivercity.getMediaId()));
                 univercityBot.sendMsg(sendPhoto);
-                sendMessage.setText("Ma'lumot o'zbekcha: %s\n\n" + biuUnivercity.getInfoUz() + "\n\nQuyidagi ma'lumot bazaga saqlansinmi?");
+                sendMessage.setText("Ma'lumot o'zbekcha: \n\n" + biuUnivercity.getInfoUz() + "\n\nQuyidagi ma'lumot bazaga saqlansinmi?");
                 sendMessage.setChatId(chatId);
                 sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.MessageCommitAndCancelBIU());
                 univercityBot.sendMsg(sendMessage);
@@ -846,8 +883,6 @@ public class AdminController {
 
             ShartnomaInfo shartnomaInfo = shartnomaInfoMap.get(chatId);
 
-            Document document = message.getDocument();
-
             if (shartnomaInfoStepMap.get(chatId).equals(AdminStatus.ENTERED_SHARTNOMA_DARAJA)) {
                 sendMessage.setText("Yo'nalishni tanlang!");
                 sendMessage.setChatId(chatId);
@@ -864,7 +899,54 @@ public class AdminController {
                 sendMessage.setChatId(chatId);
                 univercityBot.sendMsg(sendMessage);
 
+            } else if (shartnomaInfoStepMap.get(chatId).equals(AdminStatus.ENTERED_SHARTNOMA_DARAJA_UPDATE)) {
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.educationBakalavrShartnomaDirectoryMarkup(getShartnomaDirectoryList(text)));
+                sendMessage.setText("Shartnomasini o'chirmohchi bo'lgan yo'nalishingizni tanlang!");
+                sendMessage.setChatId(chatId);
+                shartnomaInfoStepMap.put(chatId, AdminStatus.ENTERED_SHARTNOMA_YONALISH_UPDATE);
+                univercityBot.sendMsg(sendMessage);
+
+            } else if (shartnomaInfoStepMap.get(chatId).equals(AdminStatus.ENTERED_SHARTNOMA_YONALISH_UPDATE)) {
+
+                EducationDirectory educationDirectory = educationDirectoryRepository.findByNameUZ(text);
+
+                System.out.println(educationDirectory.getId());
+                shartnomaInfoRepository.visibleFalse(educationDirectory);
+                shartnomaInfoStepMap.put(chatId, AdminStatus.ENTERED_SHARTNOMA_UZ_UPDATE);
+                sendMessage.setText("Shartnoma muvoffaqiyatli o'chirildi!");
+                sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.SHARTNOMACRUD());
+                sendMessage.setChatId(chatId);
+                univercityBot.sendMsg(sendMessage);
+
             }
+        } else if (text.equals("Ro'yxatdan o'tganlar")) {
+            AdminStepMap.put(chatId, AdminStatus.ENTERED_ROYXATDAN_OTGANLAR);
+            sendMessage.setText("Abiturientlarni Excel shaklda yuklash");
+            sendMessage.setChatId(chatId);
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.ExcelType());
+            univercityBot.sendMsg(sendMessage);
+
+        } else if (text.equals("Bakalavr Excel")) {
+            AdminStepMap.put(chatId, AdminStatus.ENTERED_BAKALAVR_EXCEL);
+
+            fileController.registrationAbiturinet();
+            sendMessage.setText("Bakalavr darajadagi abiturientlar ro'yxati.");
+            sendMessage.setChatId(chatId);
+
+            SendDocument sendDocument = new SendDocument();
+            sendDocument.setDocument(new InputFile(Objects.requireNonNull(fileController.registrationAbiturinet())));
+            sendDocument.setChatId(chatId);
+
+            univercityBot.sendMsg(sendMessage);
+            univercityBot.sendMsg(sendDocument);
+
+            SendMessage sendMessage1 = new SendMessage();
+            sendMessage1.setText("Abiturientlarni Excel shaklda yuklash");
+            sendMessage1.setChatId(chatId);
+            sendMessage1.setReplyMarkup(KeyboardButtonUtil.ExcelType());
+
+            univercityBot.sendMsg(sendMessage1);
+
         } else if (text.equals("Yo'nalish CRUD")) {
             AdminStepMap.put(chatId, AdminStatus.ENTERED_YONALISH_CRUD);
             sendMessage.setText("Quyidagilardan birini tanlang!");
@@ -1376,6 +1458,59 @@ public class AdminController {
             shartnomaInfoMap.put(chatId,
                     new ShartnomaInfo(null, null, null, true, null));
 
+
+        } else if (data.equals("shartnoma_delete")) {
+            DeleteMessage deleteMessage = new DeleteMessage(
+                    chatId, message.getMessageId()
+            );
+
+            univercityBot.sendMsg(deleteMessage);
+
+            AdminStepMap.put(chatId, AdminStatus.SHARTNOMA_UPDATE);
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setText("Darajani tanlang!");
+            sendMessage.setChatId(chatId);
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.educationDegreeMarkup(getEducationList()));
+            univercityBot.sendMsg(sendMessage);
+
+            shartnomaInfoStepMap.put(chatId, AdminStatus.ENTERED_SHARTNOMA_DARAJA_UPDATE);
+            shartnomaInfoMap.put(chatId,
+                    new ShartnomaInfo(null, null, null, true, null));
+
+
+        } else if (data.equals("shartnoma_show")) {
+            DeleteMessage deleteMessage = new DeleteMessage(
+                    chatId, message.getMessageId()
+            );
+
+            univercityBot.sendMsg(deleteMessage);
+
+            List<ShartnomaInfo> shartnomaInfoList = shartnomaInfoRepository.findAllByVisibleTrue();
+
+            SendDocument sendDocument = new SendDocument();
+            sendDocument.setChatId(chatId);
+
+            if (shartnomaInfoList != null) {
+
+                for (ShartnomaInfo sh : shartnomaInfoList) {
+                    System.out.println(1);
+                    sendDocument.setDocument(new InputFile(sh.getShartnomaUz()));
+                    univercityBot.sendMsg(sendDocument);
+                }
+
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setText("Quyidagi amallardan birini tanlang!");
+                sendMessage.setChatId(chatId);
+                sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.SHARTNOMACRUD());
+                univercityBot.sendMsg(sendMessage);
+
+            } else {
+                SendMessage sendMessage = new SendMessage();
+                sendMessage.setText("Ma'lumotlar hozircha yo'q.\nQuyidagi amallardan birini tanlang!");
+                sendMessage.setChatId(chatId);
+                sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.SHARTNOMACRUD());
+                univercityBot.sendMsg(sendMessage);
+            }
 
         } else if (data.equals("back_from_ContactConnectionCrud")) {
             DeleteMessage deleteMessage = new DeleteMessage(
@@ -2330,6 +2465,22 @@ public class AdminController {
 
             sendMessage.setText("Quyidagilardan yo'nalishlardan birini tanlang\uD83D\uDC47");
             sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.BIU_Univercity());
+            univercityBot.sendMsg(sendMessage);
+
+        } else if (data.equals("back_from_shartnomacrud")) {
+            DeleteMessage deleteMessage = new DeleteMessage(
+                    chatId, message.getMessageId()
+            );
+
+            univercityBot.sendMsg(deleteMessage);
+
+            SendMessage sendMessage = new SendMessage(
+                    chatId, "⏪ Ortga qaytish tugmasi bosildi✅"
+            );
+            univercityBot.sendMsg(sendMessage);
+
+            sendMessage.setText("Quyidagilardan yo'nalishlardan birini tanlang\uD83D\uDC47");
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.startAdmin());
             univercityBot.sendMsg(sendMessage);
         }
     }
