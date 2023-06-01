@@ -2,8 +2,7 @@ package com.company.univercity_bot.telegramBot;
 
 import com.company.univercity_bot.controller.AdminController;
 import com.company.univercity_bot.controller.UserController;
-import com.company.univercity_bot.enums.AdminStatus;
-import com.company.univercity_bot.model.InfoImage;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -17,8 +16,6 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 public class UnivercityBot extends TelegramLongPollingBot {

@@ -468,7 +468,6 @@ public class KeyboardButtonUtil {
 
         List<KeyboardRow> rowList = getRowList(row1, row2);
         return getMarkup(rowList);
-
     }
 
     public static ReplyKeyboard changeLanguageUz() {
